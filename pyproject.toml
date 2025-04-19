@@ -1,0 +1,48 @@
+[tool.ruff]
+exclude = [
+    "venv",
+    ".venv",
+    ".vscode",
+    ".idea",
+    ".git",
+    ".ipynb",
+    ".ipynb_checkpoints",
+    "__pycache__",
+    "alembic/"
+]
+line-length = 100
+indent-width = 4
+
+[tool.ruff.format]
+exclude = ["*.pyi"]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[tool.ruff.lint]
+select = [
+    # pycodestyle
+    "E",
+    # Pyflakes
+    "F",
+    "W",
+    # pyupgrade
+    "UP",
+    # flake8-bugbear
+    "B",
+    # flake8-simplify
+    "SIM",
+    # isort
+    "I",
+    "N",
+    "S",
+    "A",
+    "N", # pep8-naming
+    "Q", # flake8-quotes
+    "ANN", # flake8-annotations
+]
+ignore = ["B008"]
+
+[tool.ruff.lint.flake8-quotes]
+docstring-quotes = "double"
