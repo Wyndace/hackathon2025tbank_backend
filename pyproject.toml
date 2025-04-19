@@ -1,14 +1,22 @@
+[project]
+name = "hackathon2025tbank"
+version = "0.1.0"
+requires-python = ">=3.12, <3.13"
+dependencies = [
+    "fastapi",
+]
+
 [tool.ruff]
 exclude = [
-    "venv",
-    ".venv",
-    ".vscode",
-    ".idea",
-    ".git",
-    ".ipynb",
-    ".ipynb_checkpoints",
-    "__pycache__",
-    "alembic/"
+  "venv",
+  ".venv",
+  ".vscode",
+  ".idea",
+  ".git",
+  ".ipynb",
+  ".ipynb_checkpoints",
+  "__pycache__",
+  "alembic/",
 ]
 line-length = 100
 indent-width = 4
@@ -22,25 +30,25 @@ line-ending = "auto"
 
 [tool.ruff.lint]
 select = [
-    # pycodestyle
-    "E",
-    # Pyflakes
-    "F",
-    "W",
-    # pyupgrade
-    "UP",
-    # flake8-bugbear
-    "B",
-    # flake8-simplify
-    "SIM",
-    # isort
-    "I",
-    "N",
-    "S",
-    "A",
-    "N", # pep8-naming
-    "Q", # flake8-quotes
-    "ANN", # flake8-annotations
+  # pycodestyle
+  "E",
+  # Pyflakes
+  "F",
+  "W",
+  # pyupgrade
+  "UP",
+  # flake8-bugbear
+  "B",
+  # flake8-simplify
+  "SIM",
+  # isort
+  "I",
+  "N",
+  "S",
+  "A",
+  "N",   # pep8-naming
+  "Q",   # flake8-quotes
+  "ANN", # flake8-annotations
 ]
 ignore = ["B008"]
 
