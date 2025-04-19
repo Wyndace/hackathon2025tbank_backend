@@ -1,12 +1,43 @@
 services:
   app:
     build:
-      dockerfile: Dockerfile
       context: .
+      dockerfile: Dockerfile
     container_name: auth_db_api
     restart: always
     ports:
       - "${API_PORT}:8000"
-    command: uvicorn main:app --host 0.0.0.0 --port 8000
     env_file:
       - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
+    networks:
+      - app_net
+
+  db:
+    image: postgres:15
+    container_name: graph_db
+    restart: always
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "${DB_PORT}:5432"
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    networks:
+      - app_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  app_net:
+    name: graph_app
