@@ -5,22 +5,22 @@ from starlette import status
 
 from src.db.connection import get_db
 from src.repositories.graph import GraphsMapRepo
-from src.shemas.route_shema import GraphRequest, PathNode, RouteRequest, RouteResponse
+from src.shemas.graph_shema import GraphRequest, GraphUpdateRequest
+from src.shemas.route_shema import PathNode, RouteRequest, RouteResponse
 
 graph_router = APIRouter(prefix="/graph", tags=["graph"])
 
 
 @graph_router.post(
-    "/upload",
+    "/",
     status_code=status.HTTP_201_CREATED,
     response_model=None,
 )
 async def upload_graph(
     data: GraphRequest,
-    university: str,
     db: AsyncSession = Depends(get_db)
 ) -> None:
-    return await GraphsMapRepo.upload_graph(db, university, data.model_dump())
+    return await GraphsMapRepo.upload_graph(db, data.model_dump())
 
 
 @graph_router.post(
@@ -73,3 +73,39 @@ async def find_path(
     ]
 
     return RouteResponse(path=coords)
+
+
+@graph_router.get("/")
+async def get_all_graphs(db: AsyncSession = Depends(get_db)):
+    graphs = await GraphsMapRepo.get_all(db)
+    return [
+        {
+            "id": g.id,
+            "university": g.university,
+            "address": g.address
+        } for g in graphs
+    ]
+
+
+@graph_router.delete("/{address}")
+async def delete_graph(address: str, db: AsyncSession = Depends(get_db)):
+    await GraphsMapRepo.delete_by_address(db, address)
+    return {"status": "ok", "message": f"Graph with address '{address}' deleted"}
+
+
+@graph_router.put("/")
+async def update_graph(
+    data: GraphUpdateRequest,
+    db: AsyncSession = Depends(get_db)
+):
+    update_data = {}
+    if data.university:
+        update_data["university"] = data.university
+    if data.graph:
+        update_data["graph"] = data.graph.model_dump()
+
+    if not update_data:
+        raise HTTPException(status_code=400, detail="No fields to update")
+
+    await GraphsMapRepo.update_by_address(db, address=data.address, new_data=update_data)
+    return {"status": "ok", "message": "Graph updated"}
