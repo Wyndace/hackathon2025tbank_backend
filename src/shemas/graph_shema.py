@@ -24,7 +24,7 @@ class GraphRequest(BaseModel):
     graph: Graph
     university: str
     address: str
-    files: list[str]
+    urls: list[str]
 
     model_config = ConfigDict(from_attributes=True)
 
