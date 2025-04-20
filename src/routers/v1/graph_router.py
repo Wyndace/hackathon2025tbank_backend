@@ -1,11 +1,14 @@
+import asyncio
+
 import networkx as nx
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
 from src.db.connection import get_db
 from src.repositories.graph import GraphsMapRepo
-from src.shemas.graph_shema import GraphRequest, GraphUpdateRequest
+from src.scripts.minio_client import get_from_minio, upload_to_minio
+from src.shemas.graph_shema import GraphRequest, GraphUpdateRequest, PhotoURLS
 from src.shemas.route_shema import PathNode, RouteRequest, RouteResponse
 
 graph_router = APIRouter(prefix="/graph", tags=["graph"])
@@ -21,6 +24,24 @@ async def upload_graph(
     db: AsyncSession = Depends(get_db)
 ) -> None:
     return await GraphsMapRepo.upload_graph(db, data.model_dump())
+
+
+@graph_router.post(
+    "/photos",
+    status_code=status.HTTP_201_CREATED,
+    response_model=PhotoURLS,
+)
+async def upload_photos(
+    data: list[UploadFile] = File(...),
+) -> PhotoURLS:
+    for file in data:
+        contents = await file.read()
+        await upload_to_minio(contents, file.filename)
+    urls = await asyncio.gather(*[
+        get_from_minio(file.filename) for file in data
+    ])
+
+    return PhotoURLS(urls=urls)
 
 
 @graph_router.post(

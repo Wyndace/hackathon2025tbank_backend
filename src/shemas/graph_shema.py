@@ -1,4 +1,3 @@
-
 from pydantic import BaseModel, ConfigDict
 
 
@@ -25,9 +24,13 @@ class GraphRequest(BaseModel):
     graph: Graph
     university: str
     address: str
+    files: list[str]
 
     model_config = ConfigDict(from_attributes=True)
 
+class PhotoURLS(BaseModel):
+    urls: list[str]
+    model_config = ConfigDict(from_attributes=True)
 
 class GraphUpdateRequest(BaseModel):
     address: str

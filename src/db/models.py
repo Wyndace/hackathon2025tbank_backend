@@ -17,3 +17,4 @@ class GraphsMap(Base):
     university = Column(String, nullable=False)
     address = Column(String, nullable=False, unique=True)
     graph = Column(JSON, nullable=False)
+    urls = Column(JSON, nullable=False)

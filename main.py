@@ -10,11 +10,13 @@ from core.config import Settings
 from core.logger import logger
 from src.db.connection import drop_models, init_models
 from src.routers.base_router import base_router
+from src.scripts.minio_client import ensure_bucket_exists
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, Any]:
     await init_models()
+    await ensure_bucket_exists()
     yield
     await drop_models()
 

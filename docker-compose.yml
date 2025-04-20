@@ -12,9 +12,13 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      minio:
+        condition: service_healthy
     command: uvicorn main:app --host 0.0.0.0 --port 8000
     networks:
-      - app_net
+      app_net:
+        aliases:
+          - app
 
   db:
     image: postgres:15
@@ -29,15 +33,46 @@ services:
     ports:
       - "${DB_PORT}:5432"
     volumes:
-      - ./pgdata:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
     networks:
-      - app_net
+      app_net:
+        aliases:
+          - db
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
       interval: 10s
       timeout: 5s
       retries: 5
 
+  minio:
+    image: quay.io/minio/minio
+    container_name: tg_bot_fitness_minio
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "9000:9000"
+      - "9090:9090"
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9090"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_PASSWORD}
+    networks:
+      app_net:
+        aliases:
+          - minio
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
 networks:
   app_net:
     name: graph_app
+
+volumes:
+  pgdata:
+  minio_data:
